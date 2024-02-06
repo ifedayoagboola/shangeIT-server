@@ -1,4 +1,4 @@
-export type Rate = {
+export type Offer = {
   // _id: string;
   name: string;
   alias: string;

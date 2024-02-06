@@ -5,3 +5,5 @@
 #System Files
 .DS_Store
 Thunbs.db
+
+.env

@@ -1,6 +1,6 @@
-import { Rate } from "./types/rate";
+import { Offer } from "./types/offer";
 
-export const sampleProducts: Rate[] = [
+export const sampleProducts: Offer[] = [
   {
     name: "Agboola Ifedayo",
     alias: "black_scripts",
