@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 import { ErrorCode, HttpException } from "../exceptions/root";
 import { InternalException } from "../exceptions/internal-exception";
