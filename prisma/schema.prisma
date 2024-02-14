@@ -17,6 +17,7 @@ enum Role{
   USER
 }
 
+
 model User {
   id Int @id @default(autoincrement())
   name String
@@ -26,7 +27,25 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+    kyc Kyc[]
+
   @@map("users")
+}
+
+model Kyc {
+  id Int @id @default(autoincrement())
+  bvn String
+  lineOne String
+  lineTwo String
+  city String
+  country String
+  postCode String
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("kyc")
 }
 
 model Offer {
@@ -40,3 +59,5 @@ model Offer {
 
   @@map("offers")
 }
+
+
