@@ -15,7 +15,7 @@ export const KycSchema = z.object({
   address: z.string(),
   postcode: z.string(),
   dob: z.string(),
-  phone: z.number().min(10).max(11),
+  phone: z.string(),
   documentType: z.string(),
   documentNumber: z.string(),
 });

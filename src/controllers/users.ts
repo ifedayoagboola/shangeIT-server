@@ -10,6 +10,7 @@ export const submitKYC = async (req: Request, res: Response) => {
   try {
     const user = req.user?.id;
     const kyc = req.body;
+    console.log(kyc);
     const updateUser = await prismaClient.user.update({
       where: { id: user },
       data: {
@@ -19,6 +20,8 @@ export const submitKYC = async (req: Request, res: Response) => {
     });
     res.json(updateUser);
   } catch (err) {
+    console.log(err);
+
     throw new UnprocessableEntity(
       err,
       "Unprocessable entity!",

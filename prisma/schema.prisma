@@ -33,7 +33,7 @@ model User {
   country String?
   postcode String?
   dob String?
-  phone Int?
+  phone String?
   documentType String?
   documentNumber String?
   verificationStatus Status @default(PENDING)
