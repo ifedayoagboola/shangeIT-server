@@ -3,18 +3,10 @@
 import { Router } from "express";
 import { errorHandler } from "../schema/error-handler";
 import authMiddleware from "../middlewares/auth";
-import { createKyc, updateKyc } from "../controllers/users";
-import adminMiddleware from "../middlewares/admin";
+import { getKYCStatus, submitKYC } from "../controllers/users";
 
 const userRoutes: Router = Router();
 
-userRoutes.post("/", [authMiddleware], errorHandler(createKyc));
-userRoutes.put("/:id", [authMiddleware], errorHandler(updateKyc));
-userRoutes.delete(
-  "/:id",
-  [authMiddleware, adminMiddleware],
-  errorHandler(updateKyc)
-);
-userRoutes.get("/:id", [authMiddleware], errorHandler(updateKyc));
-userRoutes.get("/", [authMiddleware, adminMiddleware], errorHandler(updateKyc));
+userRoutes.put("/submit-kyc", [authMiddleware], errorHandler(submitKYC));
+userRoutes.get("/kyc-status", [authMiddleware], errorHandler(getKYCStatus));
 export default userRoutes;

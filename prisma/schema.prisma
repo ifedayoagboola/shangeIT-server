@@ -16,6 +16,11 @@ enum Role{
   ADMIN
   USER
 }
+enum Status{
+  PENDING
+  VERIFIED
+  REJECTED
+}
 
 
 model User {
@@ -24,29 +29,21 @@ model User {
   email String @unique
   password String
   role Role @default(USER)
+  address String?
+  country String?
+  postcode String?
+  dob String?
+  phone Int?
+  documentType String?
+  documentNumber String?
+  verificationStatus Status @default(PENDING)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-    kyc Kyc[]
 
   @@map("users")
 }
 
-model Kyc {
-  id Int @id @default(autoincrement())
-  bvn String
-  lineOne String
-  lineTwo String
-  city String
-  country String
-  postCode String
-  userId Int
-  user User @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("kyc")
-}
 
 model Offer {
   id Int @id @default(autoincrement())

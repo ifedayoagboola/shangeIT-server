@@ -10,6 +10,12 @@ export const LoginSchema = z.object({
   password: z.string().min(6),
 });
 export const KycSchema = z.object({
-  phone: z.string(),
+  name: z.string().optional(),
+  country: z.string(),
+  address: z.string(),
   postcode: z.string(),
+  dob: z.string(),
+  phone: z.number().min(10).max(11),
+  documentType: z.string(),
+  documentNumber: z.string(),
 });
