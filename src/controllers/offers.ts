@@ -1,17 +1,33 @@
+// export const createOffer = async (req: Request, res: Response) => {
+//   CreateOfferSchema.parse(req.body);
+//   const offer = await prismaClient.offer.create({
+//     data: {
+//       ...req.body,
+//     },
+
+//   });
+//   res.json(offer);
+// };
+
 import { Request, Response } from "express";
 import { prismaClient } from "..";
-import { CreateOfferSchema } from "../schema/offers";
 import { NotFoundException } from "../exceptions/not-found";
 import { ErrorCode } from "../exceptions/root";
+import { CreateOfferSchema } from "../schema/offers";
+import { getClosestMatchingOffers } from "../utils/offerUtils";
 
 export const createOffer = async (req: Request, res: Response) => {
   CreateOfferSchema.parse(req.body);
-  const offer = await prismaClient.offer.create({
+
+  const createdOffer = await prismaClient.offer.create({
     data: {
       ...req.body,
     },
   });
-  res.json(offer);
+
+  const closestMatchingOffers = await getClosestMatchingOffers(createdOffer);
+
+  res.json({ createdOffer, closestMatchingOffers });
 };
 
 export const updateOffer = async (req: Request, res: Response) => {

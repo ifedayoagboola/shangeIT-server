@@ -38,6 +38,8 @@ model User {
   documentNumber String?
   verificationStatus Status @default(PENDING)
 
+  offers Offer[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -47,6 +49,8 @@ model User {
 
 model Offer {
   id Int @id @default(autoincrement())
+  userId Int
+  user User @relation(fields: [userId], references: [id])
   fromCurrency String
   toCurrency String
   rate Decimal
