@@ -16,10 +16,23 @@ enum Role{
   ADMIN
   USER
 }
-enum Status{
+enum VerificationStatus{
   PENDING
   VERIFIED
   REJECTED
+}
+enum Currency{
+  CAN
+  GBP
+  USD
+  NIG
+  EUR
+}
+enum TransactionStatus{
+  PENDING
+  SUCCESS
+  REJECTED
+  FAILED
 }
 
 
@@ -39,6 +52,7 @@ model User {
   verificationStatus Status @default(PENDING)
 
   offers Offer[]
+  wallets Wallet[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -49,7 +63,7 @@ model User {
 
 model Offer {
   id Int @id @default(autoincrement())
-  userId Int
+  userId Int @default()
   user User @relation(fields: [userId], references: [id])
   fromCurrency String
   toCurrency String
@@ -59,6 +73,35 @@ model Offer {
   updatedAt DateTime @updatedAt
 
   @@map("offers")
+}
+
+model Wallet {
+  id Int @id @default(autoincrement())
+  userId Int @default()
+  user User @relation(fields: [userId], references: [id])
+  currency Currency @default(NIG)
+  accountNumber Int
+  balance Decimal
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("wallets")
+}
+
+model Transaction {
+  id Int @id @default(autoincrement())
+  userId Int
+  fromCurrency String
+  toCurrency String
+  rate Decimal
+  amount Decimal
+  balanceBefore Decimal
+  balanceAfter Decimal
+  transactionStatus TransactionStatus
+  createdAt DateTime
+  updatedAt DateTime
+
+  @@map("transactions")
 }
 
 

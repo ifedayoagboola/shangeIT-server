@@ -1,14 +1,3 @@
-// export const createOffer = async (req: Request, res: Response) => {
-//   CreateOfferSchema.parse(req.body);
-//   const offer = await prismaClient.offer.create({
-//     data: {
-//       ...req.body,
-//     },
-
-//   });
-//   res.json(offer);
-// };
-
 import { Request, Response } from "express";
 import { prismaClient } from "..";
 import { NotFoundException } from "../exceptions/not-found";
@@ -22,6 +11,7 @@ export const createOffer = async (req: Request, res: Response) => {
   const createdOffer = await prismaClient.offer.create({
     data: {
       ...req.body,
+      userId: req.user?.id,
     },
   });
 

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `offers` MODIFY `userId` INTEGER NOT NULL DEFAULT 0;

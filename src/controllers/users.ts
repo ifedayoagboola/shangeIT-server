@@ -10,7 +10,6 @@ export const submitKYC = async (req: Request, res: Response) => {
   try {
     const user = req.user?.id;
     const kyc = req.body;
-    console.log(kyc);
     const updateUser = await prismaClient.user.update({
       where: { id: user },
       data: {
@@ -18,7 +17,7 @@ export const submitKYC = async (req: Request, res: Response) => {
         verificationStatus: "VERIFIED",
       },
     });
-    res.json(updateUser);
+    res.json({ updateUser, kyc });
   } catch (err) {
     console.log(err);
 
