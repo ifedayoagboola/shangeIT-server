@@ -98,8 +98,8 @@ model Transaction {
   reference String
   type String
   status String
-  createdAt DateTime
-  updatedAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("transactions")
 }
@@ -115,8 +115,8 @@ model Account {
   userIsVerified VerificationStatus @default(PENDING)
   user User @relation(fields: [userIsVerified], references: [verificationStatus])
 
-  createdAt DateTime
-  updatedAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("accounts")
 }
