@@ -31,16 +31,21 @@ export const depositFunds = async (req: Request, res: Response) => {
     );
     //Save the transaction
     if (charge.status === "succeeded") {
-      const newTransaction = {
-        sender: req.body.userId,
-        receiver: req.body.userid,
-        amount: amount,
-        type: "deposit",
-        status: "Success",
-      };
-      await newTransaction.save();
+      const newTransaction = await prismaClient.transaction.create({
+        data: {
+          sender: req.body.userId,
+          receiver: req.body.userid,
+          amount: amount,
+          reference: "stripe deposit",
+          type: "deposit",
+          status: "Success",
+        },
+      });
+      res.json({ newTransaction });
     }
-  } catch (err) {}
+  } catch (err) {
+    throw new NotFoundException("Offer not found!", ErrorCode.OFFER_NOT_FOUND);
+  }
 };
 
 export const updateOffer = async (req: Request, res: Response) => {

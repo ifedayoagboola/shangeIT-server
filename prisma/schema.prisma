@@ -2,6 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 // npx prisma migrate dev --name UpdateUsersTable
 // npx prisma studio
+// CTRL + SHIFT + P then type: restart TS Server
 
 generator client {
   provider = "prisma-client-js"
@@ -49,7 +50,7 @@ model User {
   phone String?
   documentType String?
   documentNumber String?
-  verificationStatus VerificationStatus @default(PENDING)
+  verificationStatus VerificationStatus @default(PENDING) @unique
 
   offers Offer[]
   wallets Wallet[]
@@ -61,10 +62,9 @@ model User {
   @@map("users")
 }
 
-
 model Offer {
   id Int @id @default(autoincrement())
-  userId Int @default()
+  userId Int @default(0)
   user User @relation(fields: [userId], references: [id])
   fromCurrency String
   toCurrency String
@@ -78,7 +78,7 @@ model Offer {
 
 model Wallet {
   id Int @id @default(autoincrement())
-  userId Int @default()
+  userId Int @default(0)
   user User @relation(fields: [userId], references: [id])
   currency Currency @default(NIG)
   accountNumber Int
@@ -91,14 +91,13 @@ model Wallet {
 
 model Transaction {
   id Int @id @default(autoincrement())
-  userId Int
-  fromCurrency String
-  toCurrency String
-  rate Decimal
+  userId Int @default(0)
   amount Decimal
-  balanceBefore Decimal
-  balanceAfter Decimal
-  transactionStatus TransactionStatus
+  sender String
+  receiver String
+  reference String
+  type String
+  status String
   createdAt DateTime
   updatedAt DateTime
 
@@ -113,12 +112,12 @@ model Account {
   accountId Int @unique
   pinNumber String @unique
   currency String
-  userIsVerified String @default()
+  userIsVerified VerificationStatus @default(PENDING)
   user User @relation(fields: [userIsVerified], references: [verificationStatus])
 
   createdAt DateTime
   updatedAt DateTime
 
-  @@map("transactions")
+  @@map("accounts")
 }
 
