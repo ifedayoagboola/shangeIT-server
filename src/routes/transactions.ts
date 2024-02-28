@@ -10,7 +10,7 @@ const transactionRoutes: Router = Router();
 
 transactionRoutes.post(
   "/deposit-funds",
-  [authMiddleware, kycVerificationMiddleware],
+  // [authMiddleware, kycVerificationMiddleware],
   errorHandler(depositFunds)
 );
 

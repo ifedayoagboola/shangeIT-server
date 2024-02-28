@@ -5,17 +5,25 @@ import { NotFoundException } from "../exceptions/not-found";
 import { ErrorCode } from "../exceptions/root";
 import Stripe from "stripe";
 import { uuid } from "uuidv4";
+import { InternalException } from "../exceptions/internal-exception";
 
 export const depositFunds = async (req: Request, res: Response) => {
   const stripe = new Stripe(STRIPE_KEY);
-
   try {
-    const { token, amount } = req.body;
+    const { token, amount, userID } = req.body;
     //create a customer
+    console.log(token, amount);
     const customer = await stripe.customers.create({
       email: token.email,
       source: token.id,
     });
+
+    // res.json({
+    //   message: "transaction successful",
+    //   customer,
+    //   success: true,
+    // });
+
     //create a charge
     const charge = await stripe.charges.create(
       {
@@ -41,10 +49,29 @@ export const depositFunds = async (req: Request, res: Response) => {
           status: "Success",
         },
       });
-      res.json({ newTransaction });
+      //Increase the user's balance
+      const wallet = await prismaClient.wallet.update({
+        where: { id: userID },
+        data: { ...{ balance: amount } },
+      });
+      res.json({
+        message: "transaction successful",
+        newTransaction,
+        wallet,
+        success: true,
+      });
+    } else {
+      throw new NotFoundException(
+        "transaction failed!",
+        ErrorCode.OFFER_NOT_FOUND
+      );
     }
   } catch (err) {
-    throw new NotFoundException("Offer not found!", ErrorCode.OFFER_NOT_FOUND);
+    throw new InternalException(
+      "transaction failed!",
+      err,
+      ErrorCode.OFFER_NOT_FOUND
+    );
   }
 };
 
