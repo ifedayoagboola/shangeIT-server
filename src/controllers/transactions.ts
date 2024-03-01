@@ -62,17 +62,19 @@ export const depositFunds = async (req: Request, res: Response) => {
         success: true,
       });
     } else {
-      throw new NotFoundException(
-        "transaction failed!",
-        ErrorCode.OFFER_NOT_FOUND
-      );
+      console.log("error occured in if statement!");
+      // throw new NotFoundException(
+      //   "transaction failed!",
+      //   ErrorCode.OFFER_NOT_FOUND
+      // );
     }
   } catch (err) {
-    throw new InternalException(
-      "transaction failed!",
-      err,
-      ErrorCode.OFFER_NOT_FOUND
-    );
+    // throw new InternalException(
+    //   "transaction failed!",
+    //   err,
+    //   ErrorCode.OFFER_NOT_FOUND
+    // );
+    console.log(err);
   }
 };
 

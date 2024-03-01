@@ -91,10 +91,9 @@ model Wallet {
 
 model Transaction {
   id Int @id @default(autoincrement())
-  amount Decimal
-  sender String
-  receiver String
-  balance Decimal
+  amount String
+  sender Int
+  receiver Int
   reference String
   type String
   status String

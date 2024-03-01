@@ -19,8 +19,6 @@ export const submitKYC = async (req: Request, res: Response) => {
     });
     res.json({ updateUser, kyc });
   } catch (err) {
-    console.log(err);
-
     throw new UnprocessableEntity(
       err,
       "Unprocessable entity!",
