@@ -12,18 +12,10 @@ export const depositFunds = async (req: Request, res: Response) => {
   try {
     const { token, amount, userId } = req.body;
     //create a customer
-    console.log(token, amount);
     const customer = await stripe.customers.create({
       email: token.email,
       source: token.id,
     });
-
-    // res.json({
-    //   message: "transaction successful",
-    //   customer,
-    //   success: true,
-    // });
-
     //create a charge
     const charge = await stripe.charges.create(
       {
@@ -37,7 +29,6 @@ export const depositFunds = async (req: Request, res: Response) => {
         idempotencyKey: uuid(),
       }
     );
-    console.log(userId);
     //Save the transaction
     if (charge.status === "succeeded") {
       const newTransaction = await prismaClient.transaction.create({
@@ -51,30 +42,27 @@ export const depositFunds = async (req: Request, res: Response) => {
         },
       });
       //Increase the user's balance
-      // const wallet = await prismaClient.wallet.update({
-      //   where: { id: userID },
-      //   data: { ...{ balance: amount } },
-      // });
+      await prismaClient.user.update({
+        where: { id: userId },
+        data: { ...{ walletBalance: amount } },
+      });
       res.json({
         message: "transaction successful",
         newTransaction,
-        // wallet,
         success: true,
       });
     } else {
-      console.log("error occured in if statement!");
-      // throw new NotFoundException(
-      //   "transaction failed!",
-      //   ErrorCode.OFFER_NOT_FOUND
-      // );
+      throw new NotFoundException(
+        "transaction failed!",
+        ErrorCode.OFFER_NOT_FOUND
+      );
     }
   } catch (err) {
-    // throw new InternalException(
-    //   "transaction failed!",
-    //   err,
-    //   ErrorCode.OFFER_NOT_FOUND
-    // );
-    console.log(err);
+    throw new InternalException(
+      "transaction failed!",
+      err,
+      ErrorCode.OFFER_NOT_FOUND
+    );
   }
 };
 

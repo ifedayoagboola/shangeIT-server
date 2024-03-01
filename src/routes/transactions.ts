@@ -1,4 +1,4 @@
-// offerRoutes.ts
+// transactionRoutes.ts
 
 import { Router } from "express";
 import { errorHandler } from "../schema/error-handler";
@@ -10,7 +10,7 @@ const transactionRoutes: Router = Router();
 
 transactionRoutes.post(
   "/deposit-funds",
-  // [authMiddleware, kycVerificationMiddleware],
+  [authMiddleware, kycVerificationMiddleware],
   errorHandler(depositFunds)
 );
 
