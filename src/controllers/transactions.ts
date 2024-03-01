@@ -10,7 +10,7 @@ import { InternalException } from "../exceptions/internal-exception";
 export const depositFunds = async (req: Request, res: Response) => {
   const stripe = new Stripe(STRIPE_KEY);
   try {
-    const { token, amount, userID } = req.body;
+    const { token, amount, userId } = req.body;
     //create a customer
     console.log(token, amount);
     const customer = await stripe.customers.create({
@@ -37,12 +37,13 @@ export const depositFunds = async (req: Request, res: Response) => {
         idempotencyKey: uuid(),
       }
     );
+    console.log(userId);
     //Save the transaction
     if (charge.status === "succeeded") {
       const newTransaction = await prismaClient.transaction.create({
         data: {
-          sender: req.body.userId,
-          receiver: req.body.userid,
+          sender: userId,
+          receiver: userId,
           amount: amount,
           reference: "stripe deposit",
           type: "deposit",
@@ -50,14 +51,14 @@ export const depositFunds = async (req: Request, res: Response) => {
         },
       });
       //Increase the user's balance
-      const wallet = await prismaClient.wallet.update({
-        where: { id: userID },
-        data: { ...{ balance: amount } },
-      });
+      // const wallet = await prismaClient.wallet.update({
+      //   where: { id: userID },
+      //   data: { ...{ balance: amount } },
+      // });
       res.json({
         message: "transaction successful",
         newTransaction,
-        wallet,
+        // wallet,
         success: true,
       });
     } else {

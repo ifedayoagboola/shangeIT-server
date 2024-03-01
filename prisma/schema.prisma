@@ -91,7 +91,6 @@ model Wallet {
 
 model Transaction {
   id Int @id @default(autoincrement())
-  userId Int @default(0)
   amount Decimal
   sender String
   receiver String
