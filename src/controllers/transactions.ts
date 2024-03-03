@@ -19,7 +19,7 @@ export const depositFunds = async (req: Request, res: Response) => {
     //create a charge
     const charge = await stripe.charges.create(
       {
-        amount: amount,
+        amount: amount * 100,
         currency: "USD",
         customer: customer.id,
         receipt_email: token.email,
@@ -35,20 +35,21 @@ export const depositFunds = async (req: Request, res: Response) => {
         data: {
           sender: userId,
           receiver: userId,
-          amount: amount,
+          amount,
           reference: "stripe deposit",
           type: "deposit",
           status: "Success",
         },
       });
       //Increase the user's balance
-      await prismaClient.user.update({
+      const walletBalance = await prismaClient.user.update({
         where: { id: userId },
         data: { ...{ walletBalance: +amount } },
       });
       res.json({
         message: "transaction successful",
         newTransaction,
+        ...walletBalance,
         success: true,
       });
     } else {
@@ -75,7 +76,7 @@ export const transferFunds = async (req: Request, res: Response) => {
         receiver: receiver,
         amount: amount,
         reference: "No reference",
-        type: "transfer",
+        type: "debit",
         status: "Success",
       },
     });

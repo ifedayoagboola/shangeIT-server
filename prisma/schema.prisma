@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  url = env("DATABASE_URL")
 }
 
 enum Role{
@@ -22,11 +22,11 @@ enum VerificationStatus{
   VERIFIED
   REJECTED
 }
-enum Currency{
-  CAN
+enum Currency {
+  CAD
+  NIG
   GBP
   USD
-  NIG
   EUR
 }
 enum TransactionStatus{
@@ -81,9 +81,8 @@ model Wallet {
   id Int @id @default(autoincrement())
   userId Int
   user User @relation(fields: [userId], references: [id])
-  currency Currency @default(NIG)
-  accountNumber Int
-  balance Decimal
+  currency Currency
+  balance Decimal @default(0.00)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -92,7 +91,7 @@ model Wallet {
 
 model Transaction {
   id Int @id @default(autoincrement())
-  amount String
+  amount Decimal
   sender Int
   receiver Int
   reference String

@@ -4,6 +4,7 @@ import { NotFoundException } from "../exceptions/not-found";
 import { ErrorCode } from "../exceptions/root";
 import { KycSchema } from "../schema/users";
 import { UnprocessableEntity } from "../exceptions/validation";
+import { createWalletsForUser } from "../utils/walletUtils";
 
 export const submitKYC = async (req: Request, res: Response) => {
   KycSchema.parse(req.body);
@@ -17,6 +18,9 @@ export const submitKYC = async (req: Request, res: Response) => {
         verificationStatus: "VERIFIED",
       },
     });
+    if (updateUser) {
+      createWalletsForUser(user);
+    }
     res.json({ updateUser, kyc });
   } catch (err) {
     throw new UnprocessableEntity(
