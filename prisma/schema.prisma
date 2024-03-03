@@ -50,7 +50,7 @@ model User {
   phone String?
   documentType String?
   documentNumber String?
-  walletBalance String?
+  walletBalance Decimal @default(0)
   verificationStatus VerificationStatus @default(PENDING) @unique
 
   offers Offer[]

@@ -44,7 +44,7 @@ export const depositFunds = async (req: Request, res: Response) => {
       //Increase the user's balance
       await prismaClient.user.update({
         where: { id: userId },
-        data: { ...{ walletBalance: amount } },
+        data: { ...{ walletBalance: +amount } },
       });
       res.json({
         message: "transaction successful",
@@ -66,14 +66,29 @@ export const depositFunds = async (req: Request, res: Response) => {
   }
 };
 
-export const updateOffer = async (req: Request, res: Response) => {
+export const transferFunds = async (req: Request, res: Response) => {
   try {
-    const offer = req.body;
-    const updateOffer = await prismaClient.offer.update({
-      where: { id: +req.params.id },
-      data: offer,
+    const { sender, receiver, amount } = req.body;
+    const newTransaction = await prismaClient.transaction.create({
+      data: {
+        sender: sender,
+        receiver: receiver,
+        amount: amount,
+        reference: "No reference",
+        type: "transfer",
+        status: "Success",
+      },
     });
-    res.json(updateOffer);
+    await prismaClient.user.update({
+      where: { id: sender },
+      data: { ...{ walletBalance: -amount } },
+    });
+    await prismaClient.user.update({
+      where: { id: receiver },
+      data: { ...{ walletBalance: +amount } },
+    });
+
+    res.json(newTransaction);
   } catch (error) {
     throw new NotFoundException("Offer not found!", ErrorCode.OFFER_NOT_FOUND);
   }
