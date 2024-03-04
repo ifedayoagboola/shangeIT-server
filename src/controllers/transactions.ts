@@ -10,7 +10,23 @@ import { InternalException } from "../exceptions/internal-exception";
 export const depositFunds = async (req: Request, res: Response) => {
   const stripe = new Stripe(STRIPE_KEY);
   try {
-    const { token, amount, userId } = req.body;
+    const { token, amount, userId, currency } = req.body;
+
+    // Fetch user's wallet for the specified currency
+    const userWallet = await prismaClient.wallet.findFirst({
+      where: {
+        userId: userId,
+        currency: currency,
+      },
+    });
+
+    if (!userWallet) {
+      throw new NotFoundException(
+        `Wallet not found for user ${userId} and currency ${currency}`,
+        ErrorCode.OFFER_NOT_FOUND
+        // ErrorCode.WALLET_NOT_FOUND
+      );
+    }
     //create a customer
     const customer = await stripe.customers.create({
       email: token.email,
@@ -20,7 +36,7 @@ export const depositFunds = async (req: Request, res: Response) => {
     const charge = await stripe.charges.create(
       {
         amount: amount * 100,
-        currency: "USD",
+        currency,
         customer: customer.id,
         receipt_email: token.email,
         description: "Deposited to Shange-it wallet",
@@ -41,15 +57,22 @@ export const depositFunds = async (req: Request, res: Response) => {
           status: "Success",
         },
       });
-      //Increase the user's balance
-      const walletBalance = await prismaClient.user.update({
-        where: { id: userId },
-        data: { ...{ walletBalance: +amount } },
+      // Update the user's wallet balance
+      const updatedWallet = await prismaClient.wallet.update({
+        where: {
+          id: userWallet.id,
+        },
+        data: {
+          balance: {
+            increment: amount,
+          },
+        },
       });
+
       res.json({
-        message: "transaction successful",
+        message: "Transaction successful",
         newTransaction,
-        ...walletBalance,
+        updatedWallet,
         success: true,
       });
     } else {

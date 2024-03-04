@@ -21,7 +21,10 @@ export const submitKYC = async (req: Request, res: Response) => {
     if (updateUser) {
       createWalletsForUser(user);
     }
-    res.json({ updateUser, kyc });
+    const userWallets = await prismaClient.wallet.findMany({
+      where: { userId: user },
+    });
+    res.json({ updateUser, kyc, userWallets });
   } catch (err) {
     throw new UnprocessableEntity(
       err,
