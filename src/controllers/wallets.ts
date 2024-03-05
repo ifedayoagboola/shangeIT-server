@@ -8,7 +8,7 @@ export const getUserWallets = async (req: Request, res: Response) => {
   const wallets = await prismaClient.wallet.findMany({
     where: { userId: userId },
   });
-  if (wallets) {
+  if (!wallets) {
     throw new NotFoundException(
       `Wallets not found for user ${userId}`,
       ErrorCode.WALLET_NOT_FOUND

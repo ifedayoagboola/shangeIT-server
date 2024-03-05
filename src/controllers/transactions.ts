@@ -84,14 +84,51 @@ export const depositFunds = async (req: Request, res: Response) => {
     throw new InternalException(
       "transaction failed!",
       err,
-      ErrorCode.OFFER_NOT_FOUND
+      ErrorCode.INTERNAL_EXCEPTION
     );
   }
 };
 
 export const transferFunds = async (req: Request, res: Response) => {
   try {
-    const { sender, receiver, amount } = req.body;
+    const { sender, receiver, amount, currency } = req.body;
+    // Fetch source and destination wallets
+    const sourceWallet = await prismaClient.wallet.findFirst({
+      where: {
+        userId: sender,
+        currency: currency,
+      },
+    });
+
+    const destinationWallet = await prismaClient.wallet.findFirst({
+      where: {
+        userId: receiver,
+        currency: currency,
+      },
+    });
+    if (!sourceWallet || !destinationWallet) {
+      if (!sourceWallet) {
+        throw new NotFoundException(
+          `Source wallet not found for user ${sender} and currency ${currency}`,
+          ErrorCode.WALLET_NOT_FOUND
+        );
+      } else {
+        throw new NotFoundException(
+          `Destination wallet not found for user ${receiver} and currency ${currency}`,
+          ErrorCode.WALLET_NOT_FOUND
+        );
+      }
+    }
+    // Perform the transaction
+    await prismaClient.wallet.update({
+      where: { id: sourceWallet.id },
+      data: { balance: { decrement: amount } },
+    });
+
+    await prismaClient.wallet.update({
+      where: { id: destinationWallet.id },
+      data: { balance: { increment: amount } },
+    });
     const newTransaction = await prismaClient.transaction.create({
       data: {
         sender: sender,
@@ -102,18 +139,23 @@ export const transferFunds = async (req: Request, res: Response) => {
         status: "Success",
       },
     });
-    await prismaClient.user.update({
-      where: { id: sender },
-      data: { ...{ walletBalance: -amount } },
-    });
-    await prismaClient.user.update({
-      where: { id: receiver },
-      data: { ...{ walletBalance: +amount } },
-    });
 
     res.json(newTransaction);
   } catch (error) {
-    throw new NotFoundException("Offer not found!", ErrorCode.OFFER_NOT_FOUND);
+    if (error instanceof NotFoundException) {
+      // Handle the specific case of wallet not found
+      res.status(404).json({
+        message: error.message,
+        errorCode: error.statusCode,
+      });
+    } else {
+      // Handle other errors
+      throw new InternalException(
+        "Transaction failed!",
+        error,
+        ErrorCode.INTERNAL_EXCEPTION
+      );
+    }
   }
 };
 

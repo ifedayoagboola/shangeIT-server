@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { prismaClient } from "..";
-import { NotFoundException } from "../exceptions/not-found";
 import { ErrorCode } from "../exceptions/root";
 import { KycSchema } from "../schema/users";
 import { UnprocessableEntity } from "../exceptions/validation";
@@ -18,8 +17,20 @@ export const submitKYC = async (req: Request, res: Response) => {
         verificationStatus: "VERIFIED",
       },
     });
-    if (updateUser) {
-      createWalletsForUser(user);
+    // Retrieve the most recent user data
+    const updatedUser = await prismaClient.user.findUnique({
+      where: { id: user },
+      select: { walletsCreated: true, verificationStatus: true },
+    });
+
+    // Check if wallets have been created for the user
+    if (
+      updatedUser &&
+      !updatedUser.walletsCreated &&
+      updatedUser.verificationStatus
+    ) {
+      // Create wallets for the user
+      await createWalletsForUser(user);
     }
     const userWallets = await prismaClient.wallet.findMany({
       where: { userId: user },
@@ -34,15 +45,21 @@ export const submitKYC = async (req: Request, res: Response) => {
   }
 };
 
-export const getKYCStatus = async (req: Request, res: Response) => {
+export const getUsers = async (req: Request, res: Response) => {
   try {
-    const offer = req.body;
-    const updateOffer = await prismaClient.offer.update({
-      where: { id: +req.params.id },
-      data: offer,
+    const count = await prismaClient.user.count();
+    const skip = req.query?.skip ? +req.query?.skip : 0;
+    const take = 5;
+    const users = await prismaClient.user.findMany({
+      skip,
+      take,
     });
-    res.json(updateOffer);
-  } catch (error) {
-    throw new NotFoundException("Offer not found!", ErrorCode.OFFER_NOT_FOUND);
+    res.json({ count, data: users });
+  } catch (err) {
+    throw new UnprocessableEntity(
+      err,
+      "Unprocessable entity!",
+      ErrorCode.UNPROCESSABLE_ENTITY
+    );
   }
 };

@@ -50,12 +50,11 @@ model User {
   phone String?
   documentType String?
   documentNumber String?
-  walletBalance Decimal @default(0)
-  verificationStatus VerificationStatus @default(PENDING) @unique
+  verificationStatus VerificationStatus @default(PENDING)
+  walletsCreated Boolean @default(false)
 
   offers Offer[]
   wallets Wallet[]
-  accounts Account[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -101,22 +100,5 @@ model Transaction {
   updatedAt DateTime @updatedAt
 
   @@map("transactions")
-}
-
-model Account {
-  id Int @id @default(autoincrement())
-  userId Int
-  accountBalance Decimal
-  accountNumber Int @unique
-  accountId Int @unique
-  pinNumber String @unique
-  currency String
-  userIsVerified VerificationStatus @default(PENDING)
-  user User @relation(fields: [userIsVerified], references: [verificationStatus])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("accounts")
 }
 

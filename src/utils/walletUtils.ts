@@ -11,13 +11,27 @@ export const createWalletsForUser = async (userId: any) => {
     Currency.EUR,
   ];
 
-  for (const currency of currencies) {
-    await prismaClient.wallet.create({
-      data: {
-        userId,
-        currency,
-        balance: 0, // Initial balance
-      },
-    });
+  try {
+    await prismaClient.$transaction([
+      // Create wallets for each currency
+      prismaClient.wallet.createMany({
+        data: currencies.map((currency) => ({
+          userId,
+          currency,
+          balance: 0, // Initial balance
+        })),
+      }),
+      // Update the user to indicate that wallets have been created
+      prismaClient.user.update({
+        where: { id: userId },
+        data: {
+          walletsCreated: true,
+        },
+      }),
+    ]);
+  } catch (error) {
+    // Handle the error, log, or throw as needed
+    console.error("Error creating wallets for user:", error);
+    throw error;
   }
 };
