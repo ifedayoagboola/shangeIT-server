@@ -23,8 +23,7 @@ export const depositFunds = async (req: Request, res: Response) => {
     if (!userWallet) {
       throw new NotFoundException(
         `Wallet not found for user ${userId} and currency ${currency}`,
-        ErrorCode.OFFER_NOT_FOUND
-        // ErrorCode.WALLET_NOT_FOUND
+        ErrorCode.WALLET_NOT_FOUND
       );
     }
     //create a customer
