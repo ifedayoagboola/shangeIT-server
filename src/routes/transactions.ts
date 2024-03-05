@@ -4,7 +4,11 @@ import { Router } from "express";
 import { errorHandler } from "../schema/error-handler";
 import authMiddleware from "../middlewares/auth";
 import kycVerificationMiddleware from "../middlewares/kycVerification";
-import { depositFunds, transferFunds } from "../controllers/transactions";
+import {
+  depositFunds,
+  getAllUserTransactions,
+  transferFunds,
+} from "../controllers/transactions";
 
 const transactionRoutes: Router = Router();
 
@@ -17,6 +21,11 @@ transactionRoutes.put(
   "/transfer-funds",
   [authMiddleware, kycVerificationMiddleware],
   errorHandler(transferFunds)
+);
+transactionRoutes.get(
+  "/:id",
+  [authMiddleware, kycVerificationMiddleware],
+  errorHandler(getAllUserTransactions)
 );
 
 export default transactionRoutes;

@@ -159,39 +159,29 @@ export const transferFunds = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteOffer = async (req: Request, res: Response) => {
+export const getAllUserTransactions = async (req: Request, res: Response) => {
   try {
-    const deleteOffer = await prismaClient.offer.delete({
-      where: { id: +req.params.id },
-    });
-    res.json(deleteOffer);
-  } catch (error) {
-    throw new NotFoundException("Offer not found!", ErrorCode.OFFER_NOT_FOUND);
-  }
-};
+    const userId = +req.params.id;
+    const skip = req.query?.skip ? +req.query?.skip : 0;
+    const take = 5;
 
-export const listOffers = async (req: Request, res: Response) => {
-  // {
-  //   count: 100,
-  //    data: []
-  // }
-  const count = await prismaClient.offer.count();
-  const skip = req.query?.skip ? +req.query?.skip : 0;
-  const take = 5;
-  const offers = await prismaClient.offer.findMany({
-    skip,
-    take,
-  });
-  res.json({ count, data: offers });
-};
+    const [userTransactions, totalTransactions] = await Promise.all([
+      prismaClient.transaction.findMany({
+        where: {
+          OR: [{ sender: userId }, { receiver: userId }],
+        },
+        skip,
+        take,
+      }),
+      prismaClient.transaction.count({
+        where: {
+          OR: [{ sender: userId }, { receiver: userId }],
+        },
+      }),
+    ]);
 
-export const getOfferById = async (req: Request, res: Response) => {
-  try {
-    const offer = await prismaClient.offer.findFirstOrThrow({
-      where: { id: +req.params.id },
-    });
-    res.json(offer);
+    res.json({ data: userTransactions, count: totalTransactions });
   } catch (err) {
-    throw new NotFoundException("Offer not found!", ErrorCode.OFFER_NOT_FOUND);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

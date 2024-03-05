@@ -17,6 +17,8 @@ export const submitKYC = async (req: Request, res: Response) => {
         verificationStatus: "VERIFIED",
       },
     });
+    // Introduce a small delay before checking walletsCreated
+    await new Promise((resolve) => setTimeout(resolve, 100));
     // Retrieve the most recent user data
     const updatedUser = await prismaClient.user.findUnique({
       where: { id: user },
