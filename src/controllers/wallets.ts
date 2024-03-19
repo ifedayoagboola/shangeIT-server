@@ -4,7 +4,7 @@ import { NotFoundException } from "../exceptions/not-found";
 import { ErrorCode } from "../exceptions/root";
 
 export const getUserWallets = async (req: Request, res: Response) => {
-  const { userId } = req.body;
+  const userId = +req.params.id;
   const wallets = await prismaClient.wallet.findMany({
     where: { userId: userId },
   });

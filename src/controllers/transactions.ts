@@ -99,6 +99,7 @@ export const transferFunds = async (req: Request, res: Response) => {
         currency: currency,
       },
     });
+    console.log(sourceWallet, amount);
 
     const destinationWallet = await prismaClient.wallet.findFirst({
       where: {
@@ -106,11 +107,16 @@ export const transferFunds = async (req: Request, res: Response) => {
         currency: currency,
       },
     });
-    if (!sourceWallet || !destinationWallet) {
+    if (!sourceWallet || !destinationWallet || sourceWallet.balance < amount) {
       if (!sourceWallet) {
         throw new NotFoundException(
           `Source wallet not found for user ${sender} and currency ${currency}`,
           ErrorCode.WALLET_NOT_FOUND
+        );
+      } else if (sourceWallet.balance < amount) {
+        throw new NotFoundException(
+          "Insufficient funds!",
+          ErrorCode.INSUFFICIENT_FUNDS
         );
       } else {
         throw new NotFoundException(
@@ -118,6 +124,11 @@ export const transferFunds = async (req: Request, res: Response) => {
           ErrorCode.WALLET_NOT_FOUND
         );
       }
+    }
+
+    // Check if the source wallet has sufficient balance
+    if (sourceWallet.balance < amount) {
+      throw new Error("Insufficient funds");
     }
     // Perform the transaction
     await prismaClient.wallet.update({

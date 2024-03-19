@@ -9,7 +9,7 @@ import { getUserWallets } from "../controllers/wallets";
 const walletRoutes: Router = Router();
 
 walletRoutes.get(
-  "/get-user-wallets",
+  "/:id",
   [authMiddleware, kycVerificationMiddleware],
   errorHandler(getUserWallets)
 );
